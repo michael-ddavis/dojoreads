@@ -5,9 +5,18 @@ import bcrypt
 
 def index(request):
     return render(request, 'index.html')
-    
-def home(request):
-    return render(request, 'home.html')
+
+def show_books(request):
+    return render(request, 'books.html')
+
+def add_book(request):
+    return render(request, 'add_book.html')
+
+def show_book(request, id):
+    return render(request, 'show_book.html')
+
+def show_user(request, id):
+    return render(request, 'show_user.html') 
     
 def login(request):
     errors = User.objects.login_validator(request.POST)
@@ -59,6 +68,12 @@ def register(request):
         
         request.session['logged_in_user'] = new_user.id
         return redirect("/home")
+    
+def add_book_and_review(request):
+    pass
+
+def add_review_to_book(request, id):
+    pass
     
 def logout(request):
     del request.session['logged_in_user']

@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MaxValueValidator, MinValueValidator
 import re
 import bcrypt
 
@@ -28,13 +29,39 @@ class UserManager(models.Manager):
         else:
             errors['password'] = "Invalid login attempt"
         return errors
+    
+class BookManager(models.Manager):
+    def book_validator(self, postData):
+        errors = {}
+        if len(postData['title']) < 2:
+            errors['title'] = "Title must be at least 2 characters!"
+        if len(postData['author']) < 2:
+            errors['author'] = "Author must be at least 2 characters!"
+        return errors
 
 class User(models.Model):
     first_name = models.CharField(max_length = 45)
     last_name = models.CharField(max_length = 45)
+    alias = models.CharField(max_length = 45)
     email = models.CharField(max_length = 255)
     password = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     objects = UserManager()
     
+class Book(models.Model):
+    title = models.CharField(max_length = 255)
+    author = models.CharField(max_length=45)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    objects = BookManager()
+    
+class Review(models.Model):
+    content = models.TextField()
+    rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    # becuase a user can have multiple reviews associated with it, we add this foreign key
+    user = models.ForeignKey(User, related_name="reviews", on_delete=models.CASCADE)
+    # because a book can have multiple reviews associated with it we add this foreign key
+    book = models.ForeignKey(Book, related_name="reviews", on_delete=models.CASCADE)
